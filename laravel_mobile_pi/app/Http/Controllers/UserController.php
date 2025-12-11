@@ -34,7 +34,7 @@ class UserController extends Controller
             'message' => 'Usuário criado com sucesso!',
             # retorna todas as informacoes do usuario
             'user' => $user
-        ], 201);
+        ], 200);
         
     }
 
