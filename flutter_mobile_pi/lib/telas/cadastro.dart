@@ -50,14 +50,11 @@ class _CadastroState extends State<Cadastro> {
     setState(() => carregando = false);
 
     if (resp['ok']) {// cadastro feito -> tenta logaar direto
-      print('teste');
       final resp = await api.login(e, s);
       if (!mounted) return; 
       if(resp['ok']){//caso consiga logar -> vai direto para o home
-      print('certo');
         Navigator.pushReplacementNamed(context, '/home');
       } else {// caso não consiga -> vai para a tela de login
-      print('errado');
         Navigator.pushReplacementNamed(context, '/login');
       }
     } else {// caso cadastro nao feito -> printa a mensagem

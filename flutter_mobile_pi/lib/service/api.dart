@@ -55,6 +55,26 @@ class Api {
     }
   }
 
+  Future<bool> logout() async {
+    final url = Uri.parse('$baseUrl/logout');
+    final token = await TokenStorage().pegarToken();
+
+    try {
+      final res = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+      );
+      if(res.statusCode == 200){
+        return true;
+      }
+      return false;
+    } on Exception catch (_) {
+      return false;
+    }
+  }
 
   Future<Map<String, dynamic>> cadastrar(String name, String email, String senha) async {
     final url = Uri.parse('$baseUrl/registrar');
@@ -100,21 +120,27 @@ class Api {
     
     } else {
       //print('presente');
-      final res = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-        },
-      );
+      try{
+        final res = await http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          },
+        );
 
-      if (res.statusCode == 200) {
-        //print('resposta da api ok');
-        return true;
+        if (res.statusCode == 200) {
+          //print('resposta da api ok');
+          return true;
+        }
+
+        //print('api nao achou o token');
+        return false;
+
+      } on Exception catch (_) {
+        return false;
       }
 
-      //print('api nao achou o token');
-      return false;
     }
 
   }

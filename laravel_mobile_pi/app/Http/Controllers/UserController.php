@@ -80,8 +80,8 @@ class UserController extends Controller
         $user->tokens()->delete();
 
         return response()->json([
-            'status'  => '',
-        ]);
+            'status'  => 'ok',
+        ], 200);
 
     }
 
