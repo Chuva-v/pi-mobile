@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:mobile_pi/desenho/cores.dart';
 import 'package:mobile_pi/routes/rotaSemAnimacao.dart';
 import 'package:mobile_pi/service/api.dart';
-import 'package:mobile_pi/telas/buscar.dart';
+import 'package:mobile_pi/telas/home.dart';
 import 'package:mobile_pi/telas/meus.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class BuscarPage extends StatefulWidget {
+  const BuscarPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<BuscarPage> createState() => _BuscarPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _BuscarPageState extends State<BuscarPage> {
   final api = Api();
   final c = Cores();
   double scaleHome = 1.0;
@@ -86,35 +86,7 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            // SESSÃO "Tocadas Recentemente"
-            Text(
-              "Tocadas Recentemente",
-              style: TextStyle(color: c.branco(), fontSize: 18),
-            ),
-            SizedBox(height: altura * 0.1),
-
-            SizedBox(height: 25),
-
-            // SESSÃO "Playlists"
-            Text(
-              "Suas Playlists",
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            SizedBox(height: 10),
-
-            SizedBox(height: 25),
-
-            // 🔥 SESSÃO "Recomendadas"
-            Text(
-              "Recomendadas para Você",
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            SizedBox(height: 10),
-
-          ],
+          
         ),
 
       ),
@@ -162,6 +134,16 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(12),
                       onTap:(){
                         animarHome('scaleHome');
+                        final rotaAtual = ModalRoute.of(context)?.settings.name;
+                        if (rotaAtual != '/home') {
+                          Navigator.pushReplacement(
+                            context,
+                            Rotasemanimacao(
+                              builder: (_) => HomePage(), 
+                              settings: RouteSettings(name: '/home')
+                            )
+                          );
+                        }
                       },
                       child: AnimatedScale(
                         scale: scaleHome,
@@ -181,16 +163,6 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(12),
                       onTap:(){
                         animarHome('scaleBuscar');
-                        final rotaAtual = ModalRoute.of(context)?.settings.name;
-                        if (rotaAtual != '/buscar') {
-                          Navigator.pushReplacement(
-                            context,
-                            Rotasemanimacao(
-                              builder: (_) => BuscarPage(), 
-                              settings: RouteSettings(name: '/buscar')
-                            )
-                          );
-                        }
                       },
                       child: AnimatedScale(
                         scale: scaleBuscar,
@@ -211,6 +183,7 @@ class _HomePageState extends State<HomePage> {
                       onTap:(){
                         animarHome('scaleLib');
                         final rotaAtual = ModalRoute.of(context)?.settings.name;
+
                         if (rotaAtual != '/meus') {
                           Navigator.pushReplacement(
                             context,
@@ -240,122 +213,6 @@ class _HomePageState extends State<HomePage> {
           ),
         )
       ),
-    );
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // ----------- WIDGETS DE LISTAS -----------
-
-  Widget _buildRecentes() {
-    return SizedBox(
-      height: 120,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _musicCard("Beat Trap", Icons.music_note),
-          _musicCard("Funk Hits", Icons.audiotrack),
-          _musicCard("Lo-fi Relax", Icons.spa),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPlaylists() {
-    return Column(
-      children: [
-        _playlistTile("Minhas Favoritas", Icons.favorite),
-        _playlistTile("Trabalho/Focus", Icons.work),
-        _playlistTile("Rock Clássico", Icons.radio),
-      ],
-    );
-  }
-
-  Widget _buildRecomendadas() {
-    return Column(
-      children: [
-        _musicTile("Vibez do Momento", Icons.music_video),
-        _musicTile("Top Brasil", Icons.star),
-        _musicTile("Eletro Boost", Icons.flash_on),
-      ],
-    );
-  }
-
-  // ----------- COMPONENTES VISUAIS -----------
-
-  Widget _musicCard(String titulo, IconData icone) {
-    return Container(
-      width: 110,
-      margin: EdgeInsets.only(right: 15),
-      decoration: BoxDecoration(
-        color: Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icone, color: Colors.white, size: 35),
-          SizedBox(height: 10),
-          Text(
-            titulo,
-            style: TextStyle(color: Colors.white70),
-            textAlign: TextAlign.center,
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _playlistTile(String titulo, IconData icone) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: BoxDecoration(
-        color: Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          Icon(icone, color: Colors.white70, size: 30),
-          SizedBox(width: 15),
-          Text(titulo, style: TextStyle(color: Colors.white)),
-        ],
-      ),
-    );
-  }
-
-  Widget _musicTile(String titulo, IconData icone) {
-    return ListTile(
-      leading: Icon(icone, color: Colors.white70, size: 30),
-      title: Text(titulo, style: TextStyle(color: Colors.white)),
-      contentPadding: EdgeInsets.zero,
     );
   }
 }

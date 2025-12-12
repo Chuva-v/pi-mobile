@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_pi/service/api.dart';
 import 'package:mobile_pi/storage/token_storage.dart';
+import 'package:mobile_pi/telas/buscar.dart';
 import 'package:mobile_pi/telas/cadastro.dart';
 import 'package:mobile_pi/telas/login.dart';
 import 'package:mobile_pi/telas/home.dart';
+import 'package:mobile_pi/telas/meus.dart';
 //import 'package:mobile_pi/telas/teste.dart';
 
 
@@ -59,7 +61,9 @@ class _AppWidgetState extends State<AppWidget> {
       routes: {
         '/home' : (_) => const HomePage(),
         '/login' : (_) => const Login(),
-        '/cadastro' : (_) => const Cadastro()
+        '/cadastro' : (_) => const Cadastro(),
+        '/buscar' : (_) => const BuscarPage(),
+        '/meus' : (_) => const MeusPage()
       },
     );
   }
