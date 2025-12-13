@@ -7,4 +7,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-//Route::get('musicas/{nome}', [MusicaController::class, 'tocar']);
+Route::get('musicas/{nome}', [MusicaController::class, 'tocar']);

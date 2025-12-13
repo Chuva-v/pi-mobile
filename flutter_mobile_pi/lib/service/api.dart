@@ -2,6 +2,7 @@ import 'dart:convert';
 // import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_pi/storage/token_storage.dart';
+import 'package:just_audio/just_audio.dart';
 
 class Api {
   
@@ -72,7 +73,7 @@ class Api {
       }
       return false;
     } on Exception catch (_) {
-      return false;
+      return true;
     }
   }
 
@@ -143,6 +144,61 @@ class Api {
 
     }
 
+  }
+
+  Future<List<dynamic>> listarMusicas() async {
+    final url = Uri.parse("$baseUrl/musicas");
+
+    try {
+      final token = await TokenStorage().pegarToken();
+      final res = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        }
+      );
+
+      if(res.statusCode == 200){
+        print('tudo ok');
+        return jsonDecode(res.body);
+      } else {
+        print('serv ok, mas erro');
+        return [];
+      }
+
+    } on Exception catch (_) {
+      print('servidor erro');
+      return [];
+    }
+  }
+
+  Future<void> tocarMusicas(String arquivo) async {
+    final player = AudioPlayer();
+    final url = "$baseUrl/musicas/$arquivo";
+
+    try {
+      print('entramos na função');
+      print('url: ${url}');
+      final token = await TokenStorage().pegarToken();
+
+      await player.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          }
+        ),
+      );
+
+      print('tocando');
+      player.play();
+      
+    } on Exception catch(_){
+      print('tempo expirou');
+      return;
+    }
   }
 
 }

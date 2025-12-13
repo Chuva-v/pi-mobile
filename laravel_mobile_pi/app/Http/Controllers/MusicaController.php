@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Musica;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class MusicaController extends Controller
@@ -12,16 +13,30 @@ class MusicaController extends Controller
     }
 
     public function tocar($nome){
-        $caminho = storage_path("app/musicas/".$nome);
-
+        $caminho = storage_path("app/public/musicas/$nome");
+        //dd();
         if(!file_exists($caminho)){
             return response()->json(
-                ['erro' => 'arquivo nao encontrado'], 404
+                ['erro' => 'função tocar no Controller musicas nao achou o arquivo'], 404
             );
         }
+
         return response()->file($caminho);
     }
     
+    public function mostrarCapa($nome){
+        $caminho = storage_path("app/capas/$nome");
+
+        if (!file_exists($caminho)) {
+            return response()->json([
+                'erro' => 'Arquivo não encontrado (file_exists)',
+                'caminho_testado' => $caminho
+            ], 404);
+        }
+
+        return response()->file($caminho);
+    }
+
     public function addstore(Request $request){
 
         //dd("ENTROU AQUI");

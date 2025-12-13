@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 # rotas livres ===========================================
 Route::post('registrar', [UserController::class, 'registrar']);
 Route::post('login', [UserController::class, 'login']);
+Route::get('capas/{nome}', [MusicaController::class, 'mostrarCapa']);
 //Route::post('recuperar', [UserController::class, 'recuperar']);
 
 # rotas protegidas ========================================
