@@ -61,7 +61,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
         final player = PlayerStateGlobal.player;
 
         if (player.audioSource == null) {
-          return const SizedBox.shrink();
+          return const SizedBox(height: 43);
         }
 
         final playing = snapshot.data?.playing ?? false;

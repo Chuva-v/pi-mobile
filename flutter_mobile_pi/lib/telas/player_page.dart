@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_pi/desenho/cores.dart';
 import 'package:mobile_pi/service/play_global.dart';
+import 'package:just_audio/just_audio.dart';
 import 'dart:ui';
 
 class PlayerPage extends StatefulWidget {
@@ -16,7 +17,24 @@ class _PlayerPageState extends State<PlayerPage> {
   String _formatarTempo(Duration d) {
     final minutos = d.inMinutes;
     final segundos = d.inSeconds % 60;
-    return '${minutos.toString()}:${segundos.toString().padLeft(2, '0')}';
+    return '$minutos:${segundos.toString().padLeft(2, '0')}';
+  }
+
+  IconData _iconeLoop() {
+    switch (PlayerStateGlobal.loopMode) {
+      case LoopMode.one:
+        return Icons.repeat_one;
+      case LoopMode.all:
+        return Icons.repeat;
+      default:
+        return Icons.repeat;
+    }
+  }
+
+  Color _corLoop() {
+    return PlayerStateGlobal.loopMode == LoopMode.off
+        ? Colors.white54
+        : c.laranja();
   }
 
   @override
@@ -41,7 +59,6 @@ class _PlayerPageState extends State<PlayerPage> {
       // ---------------- BODY ----------------
       body: Stack(
         children: [
-
           // -------- FUNDO COM CAPA --------
           if (PlayerStateGlobal.capa != null)
             Positioned.fill(
@@ -55,9 +72,7 @@ class _PlayerPageState extends State<PlayerPage> {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-              child: Container(
-                color: Colors.black.withOpacity(0.35),
-              ),
+              child: Container(color: Colors.black.withOpacity(0.35)),
             ),
           ),
 
@@ -84,52 +99,69 @@ class _PlayerPageState extends State<PlayerPage> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-
-                  // -------- CAPA PRINCIPAL --------
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    height: 300,
-                    width: double.infinity,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: PlayerStateGlobal.capa != null
-                          ? Image.network(
-                              "http://127.0.0.1:8000/storage/capas/${PlayerStateGlobal.capa}",
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _capaFallback(),
-                            )
-                          : _capaFallback(),
-                    ),
+                  // -------- CAPA --------
+                  StreamBuilder<int?>(
+                    stream: PlayerStateGlobal.player.currentIndexStream,
+                    builder: (context, snapshot) {
+                      return Container(
+                        constraints: const BoxConstraints(maxWidth: 300),
+                        height: 300,
+                        width: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: PlayerStateGlobal.capa != null
+                              ? Image.network(
+                                  "http://127.0.0.1:8000/storage/capas/${PlayerStateGlobal.capa}",
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => _capaFallback(),
+                                )
+                              : _capaFallback(),
+                        ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 30),
 
                   // -------- TITULO / ARTISTA --------
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        PlayerStateGlobal.titulo ?? '',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StreamBuilder<int?>(
+                          stream: PlayerStateGlobal.player.currentIndexStream,
+                          builder: (context, snapshot) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  PlayerStateGlobal.titulo ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  PlayerStateGlobal.artista ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        PlayerStateGlobal.artista ?? '',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 30),
 
-                  // -------- SLIDER + TEMPO --------
+                  // -------- SLIDER --------
                   StreamBuilder<Duration?>(
                     stream: PlayerStateGlobal.player.durationStream,
                     builder: (context, durSnapshot) {
@@ -138,55 +170,35 @@ class _PlayerPageState extends State<PlayerPage> {
                       return StreamBuilder<Duration>(
                         stream: PlayerStateGlobal.player.positionStream,
                         builder: (context, posSnapshot) {
-                          final posicao =
-                              posSnapshot.data ?? Duration.zero;
-
-                          final max =
-                              duracao.inSeconds.toDouble();
-                          final value = posicao.inSeconds
-                              .clamp(0, duracao.inSeconds)
-                              .toDouble();
+                          final posicao = posSnapshot.data ?? Duration.zero;
 
                           return Column(
                             children: [
-                              SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  trackHeight: 2,
-                                  activeTrackColor: c.laranja(),
-                                  inactiveTrackColor: Colors.white24,
-                                  thumbShape:
-                                      SliderComponentShape.noOverlay,
-                                  overlayShape:
-                                      SliderComponentShape.noOverlay,
-                                ),
-                                child: Slider(
-                                  min: 0,
-                                  max: max > 0 ? max : 1,
-                                  value: value,
-                                  onChanged: (v) {
-                                    PlayerStateGlobal.player.seek(
-                                      Duration(seconds: v.toInt()),
-                                    );
-                                  },
-                                ),
+                              Slider(
+                                min: 0,
+                                max: duracao.inSeconds.toDouble().clamp(1, double.infinity),
+                                value: posicao.inSeconds
+                                    .toDouble()
+                                    .clamp(0, duracao.inSeconds.toDouble()),
+                                activeColor: c.laranja(),
+                                inactiveColor: Colors.white24,
+                                onChanged: (v) {
+                                  PlayerStateGlobal.player
+                                      .seek(Duration(seconds: v.toInt()));
+                                },
                               ),
-
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    _formatarTempo(posicao),
-                                    style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12),
-                                  ),
-                                  Text(
-                                    _formatarTempo(duracao - posicao),
-                                    style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12),
-                                  ),
+                                  Text(_formatarTempo(posicao),
+                                      style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12)),
+                                  Text(_formatarTempo(duracao - posicao),
+                                      style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12)),
                                 ],
                               ),
                             ],
@@ -196,26 +208,68 @@ class _PlayerPageState extends State<PlayerPage> {
                     },
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 25),
 
-                  // -------- CONTROLES --------
+                  // -------- CONTROLES AVANÇADOS --------
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
+                      // SHUFFLE
                       IconButton(
-                        iconSize: 60,
-                        icon: Icon(
-                          PlayerStateGlobal.tocando
-                              ? Icons.pause_circle
-                              : Icons.play_circle,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            PlayerStateGlobal.tocando
-                                ? PlayerStateGlobal.pause()
-                                : PlayerStateGlobal.resume();
-                          });
+                        icon: Icon(Icons.shuffle,
+                            color: PlayerStateGlobal.shuffle
+                                ? c.laranja()
+                                : Colors.white54),
+                        onPressed: () async {
+                          await PlayerStateGlobal.toggleShuffle();
+                          setState(() {});
+                        },
+                      ),
+
+                      // ANTERIOR
+                      IconButton(
+                        icon: const Icon(Icons.skip_previous,
+                            size: 36, color: Colors.white),
+                        onPressed: PlayerStateGlobal.previous,
+                      ),
+
+                      // PLAY / PAUSE
+                      StreamBuilder<PlayerState>(
+                        stream: PlayerStateGlobal.player.playerStateStream,
+                        builder: (context, snapshot) {
+                          final playing =
+                              snapshot.data?.playing ?? false;
+
+                          return IconButton(
+                            iconSize: 70,
+                            icon: Icon(
+                              playing
+                                  ? Icons.pause_circle
+                                  : Icons.play_circle,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              playing
+                                  ? PlayerStateGlobal.pause()
+                                  : PlayerStateGlobal.resume();
+                            },
+                          );
+                        },
+                      ),
+
+                      // PRÓXIMA
+                      IconButton(
+                        icon: const Icon(Icons.skip_next,
+                            size: 36, color: Colors.white),
+                        onPressed: PlayerStateGlobal.next,
+                      ),
+
+                      // LOOP
+                      IconButton(
+                        icon: Icon(_iconeLoop(), color: _corLoop()),
+                        onPressed: () async {
+                          await PlayerStateGlobal.toggleLoop();
+                          setState(() {});
                         },
                       ),
                     ],
@@ -235,7 +289,7 @@ class _PlayerPageState extends State<PlayerPage> {
       child: const Icon(
         Icons.music_note,
         size: 120,
-        color: Colors.white54,
+        color: Color.fromARGB(255, 215, 130, 3),
       ),
     );
   }

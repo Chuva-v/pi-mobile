@@ -79,7 +79,6 @@ class _BuscarPageState extends State<BuscarPage> {
 
   Future<void> tocar(Map musica) async {
     final url = "http://127.0.0.1:8000/storage/musicas/${musica['arquivo']}";
-    print('url : ${url}');
 
     await PlayerStateGlobal.player.setAudioSource(
       AudioSource.uri(Uri.parse(url)),
