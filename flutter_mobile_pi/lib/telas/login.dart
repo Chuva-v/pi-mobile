@@ -75,12 +75,23 @@ class _LoginState extends State<Login> {
         children: [
           Column(
             children: [
-              // logo ----------------------------------------------------
+              // login ----------------------------------------------------
               SizedBox(height: altura * 0.2),
               Container(
-                color: c.azul(),
-                width: 100,
+                width: 200,
                 height: 100,
+                decoration: BoxDecoration(
+                ),
+                child: Center(
+                  child: Text(
+                    'LOGIN', 
+                    style: TextStyle(
+                      color: c.laranja(),
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 40
+                    )
+                  ),
+                ),
               ),
 
               // inputs -------------------------------------------------

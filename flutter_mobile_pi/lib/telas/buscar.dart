@@ -19,6 +19,7 @@ class _BuscarPageState extends State<BuscarPage> {
   final api = Api();
   final c = Cores();
   final player = AudioPlayer();
+  String? categoriaSelecionada;
 
   List musicas= [];
   bool carregando = true;
@@ -83,6 +84,7 @@ class _BuscarPageState extends State<BuscarPage> {
 
     await PlayerStateGlobal.player.setAudioSource(
       AudioSource.uri(Uri.parse(url)),
+      preload: true,
     );
 
     await PlayerStateGlobal.player.play();
@@ -138,83 +140,150 @@ class _BuscarPageState extends State<BuscarPage> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // if para mostrar as categorias caso a barra de pesquisa esteja vazia
-            if(pesquisa.isEmpty) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    height: 120,
-                    width: largura * 0.5 - 30,
-                    margin: EdgeInsets.only(bottom: 15),
-                    decoration: BoxDecoration(
-                      color: c.azul(),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(child: Text('TESTE', style: TextStyle(fontSize: largura * 0.06, fontWeight: FontWeight.bold, color: c.preto()))),
+            // =====================================
+            // PESQUISA VAZIA
+            // =====================================
+            if (pesquisa.isEmpty) ...[
+
+              // ---------------------------
+              // NENHUMA CATEGORIA SELECIONADA
+              // ---------------------------
+              if (categoriaSelecionada == null) ...[
+                // Linha 1
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _categoriaCard('Boombap', c.azul()),
+                    _categoriaCard('Trap', c.laranja()),
+                  ],
+                ),
+
+                // Linha 2
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _categoriaCard('Rap Nacional', Color(0xFF1DB954)), // verde spotify
+                    _categoriaCard('Rap Internacional', Color.fromARGB(255, 154, 53, 53)),
+                  ],
+                ),
+
+                // Linha 3
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _categoriaCard('MPB', Color(0xFF2A5334)),
+                    _categoriaCard('Pop', Color(0xFF8E44AD)),
+                  ],
+                ),
+
+                // Linha 4
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _categoriaCard('Rock', Color.fromARGB(255, 218, 218, 105)),
+                    _categoriaCard('Funk', Color(0xFFE84393)),
+                  ],
+                ),
+
+                // Linha 5
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _categoriaCard('Eletrônica', Color(0xFF0984E3)),
+                    _categoriaCard('Indie', Color(0xFF6C5CE7)),
+                  ],
+                ),
+
+                // Linha 6
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _categoriaCard('Gospel', Color(0xFF00B894)),
+                    _categoriaCard('Sertanejo', Color(0xFFD35400)),
+                  ],
+                ),
+
+                // linhas vazias 
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(height: 200,),
+                    SizedBox(height: 200,),
+                  ],
+                ),
+              ],
+
+
+              // ---------------------------
+              // CATEGORIA SELECIONADA
+              // ---------------------------
+              if (categoriaSelecionada != null) ...[
+                
+                // Botão voltar
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      categoriaSelecionada = null;
+                    });
+                  },
+                  icon: Icon(Icons.arrow_back, color: c.branco()),
+                  label: Text(
+                    categoriaSelecionada!,
+                    style: TextStyle(color: c.branco()),
                   ),
-                  Container(
-                    height: 120,
-                    width: largura * 0.5 - 30,
-                    margin: EdgeInsets.only(bottom: 15),
-                    decoration: BoxDecoration(
-                      color: c.laranja(),
-                      borderRadius: BorderRadius.circular(12),
+                ),
+
+                // Lista músicas da categoria
+                ...musicas
+                    .where((m) => m['categoria'] == categoriaSelecionada)
+                    .map((m) {
+                  return ListTile(
+                    title: Text(
+                      m['titulo'],
+                      style: TextStyle(color: c.branco()),
                     ),
-                  ),
-                ],
-              ),
-              
+                    subtitle: Text(
+                      m['artista'],
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    onTap: () => tocar(m),
+                  );
+                }),
+              ],
 
             ],
 
-            // mostra as musicas com nome ou cantor parecidos
-            if(pesquisa.isNotEmpty)
+            // =====================================
+            // PESQUISA COM TEXTO
+            // =====================================
+            if (pesquisa.isNotEmpty)
               ...musicas
-                .where((m) =>
-                  // pesquisa.isEmpty ||
-                  m['titulo'].toLowerCase().contains(pesquisa.toLowerCase()) ||
-                  m['artista'].toLowerCase().contains(pesquisa.toLowerCase())
-                )
-                
-                .map((m) {
-                  return ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Image.network(
-                        'http://SEU_IP:8000/api/capas/${m['capa']}',
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 50,
-                            height: 50,
-                            color: Colors.grey[800],
-                            child: Icon(
-                              Icons.music_note,
-                              color: Colors.white70,
-                              size: 30,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-  
-                    title: Text(m['titulo'], style: TextStyle(color: Colors.white)),
-                    subtitle: Text(m['artista'], style: TextStyle(color: Colors.white70)),
-                    //trailing: Icon(Icons.play_arrow, color: Colors.white),
-                    onTap: () {
-                      tocar(m);
-                    },
-                  );
-                })
-                //.toList()
+                  .where((m) =>
+                      m['titulo']
+                          .toLowerCase()
+                          .contains(pesquisa.toLowerCase()) ||
+                      m['artista']
+                          .toLowerCase()
+                          .contains(pesquisa.toLowerCase()))
+                  .map((m) {
+                return ListTile(
+                  title: Text(
+                    m['titulo'],
+                    style: TextStyle(color: c.branco()),
+                  ),
+                  subtitle: Text(
+                    m['artista'],
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  onTap: () => tocar(m),
+                );
+              }
+            ),
           ],
-        ),
-
+        )
       ),
       // ----------- RODAPE -----------------------
       bottomNavigationBar: BottomAppBar(
@@ -336,4 +405,37 @@ class _BuscarPageState extends State<BuscarPage> {
       ),
     );
   }
+
+  Widget _categoriaCard(String nome, Color cor) {
+    double largura = MediaQuery.sizeOf(context).width;
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        setState(() {
+          categoriaSelecionada = nome;
+        });
+      },
+      child: Container(
+        height: 120,
+        width: largura * 0.5 - 30,
+        margin: EdgeInsets.only(bottom: 15),
+        decoration: BoxDecoration(
+          color: cor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: Text(
+            nome,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: c.preto(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
 }

@@ -4,6 +4,7 @@ import 'package:mobile_pi/routes/rotaSemAnimacao.dart';
 import 'package:mobile_pi/service/api.dart';
 import 'package:mobile_pi/telas/buscar.dart';
 import 'package:mobile_pi/telas/meus.dart';
+import 'package:mobile_pi/telas/mini_player.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   double scaleHome = 1.0;
   double scaleBuscar = 1.0;
   double scaleLib = 1.0;
+  String nomeUsuario = '...';
 
 
   Future<void> deslogar() async {
@@ -53,8 +55,21 @@ class _HomePageState extends State<HomePage> {
 
     await Future.delayed(Duration(milliseconds: 90));
 
-    print("Clicou no Home!");
     // aqui você faz ação: trocar página, atualizar menu, etc
+  }
+
+  
+  @override
+  void initState() {
+    super.initState();
+    carregarNome();
+  }
+
+  Future<void> carregarNome() async {
+    final n = await api.meunome();
+    setState(() {
+      nomeUsuario = n;
+    });
   }
 
   @override
@@ -63,16 +78,16 @@ class _HomePageState extends State<HomePage> {
     double largura = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
-      backgroundColor: c.preto(), // estilo Spotify
+      backgroundColor: c.fundo(), // estilo Spotify
 
       // ---------------- APP BAR ----------------
       appBar: AppBar(
-        backgroundColor: c.azul(),
-        elevation: 10,
+        backgroundColor: c.preto(),
+        elevation: 0,
         centerTitle: false,
         title: Text(
-          'Sua Música 🎵',
-          style: TextStyle(color: c.fundo(), fontSize: 22, fontWeight: FontWeight.bold),
+          nomeUsuario,
+          style: TextStyle(color: c.branco(), fontSize: 22, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -140,13 +155,8 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // musica tocando no momento
-              Container(
-                height: 40,
-                width: largura - 10,
-                color: c.verde(),
-                child: Text('musica'),
-              ),
+              // -----------------------Mini player--------------------------------
+              MiniPlayer(),
 
               SizedBox(height: 5),
 

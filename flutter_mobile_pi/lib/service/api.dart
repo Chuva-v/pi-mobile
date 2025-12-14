@@ -2,7 +2,7 @@ import 'dart:convert';
 // import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_pi/storage/token_storage.dart';
-import 'package:just_audio/just_audio.dart';
+//import 'package:just_audio/just_audio.dart';
 
 class Api {
   
@@ -146,6 +146,36 @@ class Api {
 
   }
 
+  Future<String> meunome() async {
+    final url = Uri.parse('$baseUrl/perfil');
+    final token = await TokenStorage().pegarToken(); 
+
+    if (token == null) {
+      return 'GUEST';
+    }
+
+    try {
+      final res = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (res.statusCode == 200) {
+        final Map<String, dynamic> dados = jsonDecode(res.body);
+        print(dados);
+        return dados['name'] ?? 'GUEST';
+      }
+
+      return 'GUEST';
+    } catch (e) {
+      return 'GUEST';
+    }
+  }
+
+
   Future<List<dynamic>> listarMusicas() async {
     final url = Uri.parse("$baseUrl/musicas");
 
@@ -173,32 +203,32 @@ class Api {
     }
   }
 
-  Future<void> tocarMusicas(String arquivo) async {
-    final player = AudioPlayer();
-    final url = "$baseUrl/musicas/$arquivo";
+  // Future<void> tocarMusicas(String arquivo) async {
+  //   final player = AudioPlayer();
+  //   final url = "$baseUrl/musicas/$arquivo";
 
-    try {
-      print('entramos na função');
-      print('url: ${url}');
-      final token = await TokenStorage().pegarToken();
+  //   try {
+  //     print('entramos na função');
+  //     print('url: ${url}');
+  //     final token = await TokenStorage().pegarToken();
 
-      await player.setAudioSource(
-        AudioSource.uri(
-          Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token'
-          }
-        ),
-      );
+  //     await player.setAudioSource(
+  //       AudioSource.uri(
+  //         Uri.parse(url),
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': 'Bearer $token'
+  //         }
+  //       ),
+  //     );
 
-      print('tocando');
-      player.play();
+  //     print('tocando');
+  //     player.play();
       
-    } on Exception catch(_){
-      print('tempo expirou');
-      return;
-    }
-  }
+  //   } on Exception catch(_){
+  //     print('tempo expirou');
+  //     return;
+  //   }
+  // }
 
 }
