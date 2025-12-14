@@ -3,7 +3,6 @@ import 'package:mobile_pi/desenho/cores.dart';
 import 'package:mobile_pi/routes/rotaSemAnimacao.dart';
 import 'package:mobile_pi/service/api.dart';
 import 'package:mobile_pi/telas/buscar.dart';
-import 'package:mobile_pi/telas/meus.dart';
 import 'package:mobile_pi/telas/mini_player.dart';
 
 class HomePage extends StatefulWidget {
@@ -213,36 +212,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-
-                    SizedBox(width: largura * 0.15),
-
-                    InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap:(){
-                        animarHome('scaleLib');
-                        final rotaAtual = ModalRoute.of(context)?.settings.name;
-                        if (rotaAtual != '/meus') {
-                          Navigator.pushReplacement(
-                            context,
-                            Rotasemanimacao(
-                              builder: (_) => MeusPage(), 
-                              settings: RouteSettings(name: '/meus')
-                            )
-                          );
-                        }
-                      },
-                      child: AnimatedScale(
-                        scale: scaleLib,
-                        duration: Duration(milliseconds: 10),
-                        child: Column(
-                          children: [
-                            Icon(Icons.library_music, size: 35, color: c.branco()),
-                            Text('Meus', style: TextStyle(color: c.branco(), fontSize: 12))
-                          ],
-                        ),
-                      ),
-                    ),
-                    
                   ],
                 ),
               ),

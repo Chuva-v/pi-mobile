@@ -6,6 +6,9 @@ class PlayerStateGlobal {
   // 🎵 ESTADO
   static bool tocando = false;
 
+  // CAPA
+  static String? capa;
+
   // 🎶 DADOS DA MÚSICA
   static String? titulo;
   static String? artista;

@@ -5,7 +5,6 @@ import 'package:mobile_pi/routes/rotaSemAnimacao.dart';
 import 'package:mobile_pi/service/api.dart';
 import 'package:mobile_pi/service/play_global.dart';
 import 'package:mobile_pi/telas/home.dart';
-import 'package:mobile_pi/telas/meus.dart';
 import 'package:mobile_pi/telas/mini_player.dart';
 
 class BuscarPage extends StatefulWidget {
@@ -90,6 +89,7 @@ class _BuscarPageState extends State<BuscarPage> {
     await PlayerStateGlobal.player.play();
 
     PlayerStateGlobal.tocando = true;
+    PlayerStateGlobal.capa = musica['capa'];
     PlayerStateGlobal.titulo = musica['titulo'];
     PlayerStateGlobal.artista = musica['artista'];
     PlayerStateGlobal.duracao = PlayerStateGlobal.player.duration ?? Duration.zero;
@@ -235,23 +235,15 @@ class _BuscarPageState extends State<BuscarPage> {
                     style: TextStyle(color: c.branco()),
                   ),
                 ),
+                SizedBox(height: 5,),
 
                 // Lista músicas da categoria
                 ...musicas
                     .where((m) => m['categoria'] == categoriaSelecionada)
                     .map((m) {
-                  return ListTile(
-                    title: Text(
-                      m['titulo'],
-                      style: TextStyle(color: c.branco()),
-                    ),
-                    subtitle: Text(
-                      m['artista'],
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    onTap: () => tocar(m),
-                  );
-                }),
+                    return _itemMusica(m);
+                  }
+                ),
               ],
 
             ],
@@ -269,17 +261,7 @@ class _BuscarPageState extends State<BuscarPage> {
                           .toLowerCase()
                           .contains(pesquisa.toLowerCase()))
                   .map((m) {
-                return ListTile(
-                  title: Text(
-                    m['titulo'],
-                    style: TextStyle(color: c.branco()),
-                  ),
-                  subtitle: Text(
-                    m['artista'],
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  onTap: () => tocar(m),
-                );
+                return _itemMusica(m);
               }
             ),
           ],
@@ -366,36 +348,6 @@ class _BuscarPageState extends State<BuscarPage> {
                         ),
                       ),
                     ),
-
-                    SizedBox(width: largura * 0.15),
-
-                    InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap:(){
-                        animarHome('scaleLib');
-                        final rotaAtual = ModalRoute.of(context)?.settings.name;
-
-                        if (rotaAtual != '/meus') {
-                          Navigator.pushReplacement(
-                            context,
-                            Rotasemanimacao(
-                              builder: (_) => MeusPage(), 
-                              settings: RouteSettings(name: '/meus')
-                            )
-                          );
-                        }
-                      },
-                      child: AnimatedScale(
-                        scale: scaleLib,
-                        duration: Duration(milliseconds: 10),
-                        child: Column(
-                          children: [
-                            Icon(Icons.library_music, size: 35, color: c.branco()),
-                            Text('Meus', style: TextStyle(color: c.branco(), fontSize: 12))
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -433,6 +385,64 @@ class _BuscarPageState extends State<BuscarPage> {
               color: c.preto(),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _itemMusica(Map m) {
+    final capaUrl =
+        "http://127.0.0.1:8000/storage/capas/${m['capa']}";
+
+    return InkWell(
+      onTap: () => tocar(m),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10),
+        child: Row(
+          children: [
+            // -------- CAPA --------
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                capaUrl,
+                width: 55,
+                height: 55,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 55,
+                  height: 55,
+                  color: Colors.grey[800],
+                  child: Icon(Icons.music_note, color: c.branco()),
+                ),
+              ),
+            ),
+
+            SizedBox(width: 12),
+
+            // -------- TEXTO --------
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    m['titulo'],
+                    style: TextStyle(
+                      color: c.branco(),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    m['artista'],
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
