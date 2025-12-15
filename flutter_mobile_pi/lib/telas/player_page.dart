@@ -60,13 +60,24 @@ class _PlayerPageState extends State<PlayerPage> {
       body: Stack(
         children: [
           // -------- FUNDO COM CAPA --------
-          if (PlayerStateGlobal.capa != null)
-            Positioned.fill(
-              child: Image.network(
-                "http://127.0.0.1:8000/storage/capas/${PlayerStateGlobal.capa}",
-                fit: BoxFit.cover,
-              ),
-            ),
+          StreamBuilder<int?>(
+            stream: PlayerStateGlobal.player.currentIndexStream,
+            builder: (context, snapshot) {
+              final capa = PlayerStateGlobal.capa;
+
+              if (capa == null || capa.isEmpty) {
+                return const SizedBox.expand();
+              }
+
+              return Positioned.fill(
+                child: Image.network(
+                  "http://127.0.0.1:8000/storage/capas/$capa",
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          ),
+
 
           // -------- BLUR --------
           Positioned.fill(

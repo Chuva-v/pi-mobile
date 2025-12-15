@@ -156,7 +156,7 @@ class _BuscarPageState extends State<BuscarPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _categoriaCard('Boombap', c.azul()),
-                    _categoriaCard('Trap', c.laranja()),
+                    _categoriaCard('Forró', c.laranja()),
                   ],
                 ),
 
@@ -164,8 +164,8 @@ class _BuscarPageState extends State<BuscarPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _categoriaCard('Rap Nacional', Color(0xFF1DB954)), // verde spotify
-                    _categoriaCard('Rap Internacional', Color.fromARGB(255, 154, 53, 53)),
+                    _categoriaCard('Pagode', Color(0xFF1DB954)), // verde spotify
+                    _categoriaCard('Reggae', Color.fromARGB(255, 154, 53, 53)),
                   ],
                 ),
 
@@ -192,7 +192,7 @@ class _BuscarPageState extends State<BuscarPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _categoriaCard('Eletrônica', Color(0xFF0984E3)),
-                    _categoriaCard('Indie', Color(0xFF6C5CE7)),
+                    _categoriaCard('Rapper', Color(0xFF6C5CE7)),
                   ],
                 ),
 
